@@ -215,7 +215,7 @@ public class Principal {
 
 Para inserir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
-public static int insertUser(User u) {
+public int insertUser(User u) {
         try(Connection con =DriverManager.getConnection(url, user, pass)) {
             String query = "INSERT INTO User(Name,Email) VALUES (?,?);";
             PreparedStatement ps = con.prepareStatement(query);
@@ -227,5 +227,70 @@ public static int insertUser(User u) {
         }
     }
 ```
+
+### Deletando dados
+
+Para exlcuir dados, também precisaremos estar conectados em nossa base de dados:
+```java
+ public int deleteUser(int id) {
+        String query = "DELETE FROM User WHERE UserID = ?;";
+        try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
+            preparedStatement.setInt(1, id);
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+### Alterando Dados
+
+Para alterar dados:
+```java
+public int updateUser(User user) {
+        String query = "UPDATE User SET Name = ?, Email=? WHERE UserID = ?;";
+        try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setInt(3, user.getUserID());
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+
+Como observamos acima, todos os métodos fazem uso do try com recursos. Isso só é possível devido a caracteristicas da interface AutoClosable, a qual as interfaces Connection, Statement e ResultSet são filhas.
+Dessa forma, o fechamento da conexão, por exemplo, é gerenciado pelo próprio try.
+É possível também utlizar o Statement ao invés do PreparedStatement, porém, assim nossa aplicação fica exposta a ataques do tipo [SQLInjection](https://www.w3schools.com/sql/sql_injection.asp)
+
+Exemplo que utiliza o Statement ao invés do PreparedStatement:
+
+```java
+public static void main(String[] args) {
+        User tmpUser = new User();
+        List<User> users = new ArrayList<User>();
+        System.out.println(insertUser(new User(0,"Lucas","lucas@mail.com")));
+        try (Connection con = DriverManager.getConnection(url, user, pass);) {
+            System.out.println("Connected");
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("select * from User");
+            while (rs.next()) {
+                tmpUser = new User();
+                tmpUser.setUserID(rs.getInt("UserID"));
+                tmpUser.setEmail(rs.getString("Email"));
+                tmpUser.setName(rs.getString("Name"));
+                users.add(tmpUser);
+            }
+        } catch (SQLException e) {
+            System.out.println("Não foi possível conectar: "+e.getMessage());
+        }
+        System.out.println(users);
+    }
+```
+
+Com o maior número de classe é importante organizarmos nossa aplicação em pacotes conforme segue:
+![image](https://github.com/lschlestein/JDBC/assets/103784532/44aeab28-835b-4871-96d7-028de25f32f3)
+
+O código completo para esse CRUD está diponível nesse mesmo repositório 
 
 
