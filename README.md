@@ -61,7 +61,18 @@ Basicamente precisamos informar o driver que utilizaremos para trocar informaç�
     </properties>
 </project>
 ```
+Logo em seguida iremos configurar uma Connection para nos conectarmos a nossa base de dados:
 
+```Java
+String url = "jdbc:mysql://localhost:3306/COMPANY";
+String user = "root";
+String pass = "root";
+try (Connection con = DriverManager.getConnection(url, user, pass);) {
+         System.out.println("Connected");
+} catch (SQLException e) {
+         System.out.println("Não foi possível conectar: "+e.getMessage());
+}
+```
 
 
 
