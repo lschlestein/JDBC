@@ -21,8 +21,46 @@ Ex. de Drivers:
 ### Configurando o banco de dados:
 
 Nesse exemplo utilizaremos o Docker junto a uma Database:
+Pode ser utilizado outra base de dados, como postgres, só mudará a conexão junto a nossa aplicação.
+Docker:
+```bash
+docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=dockerDatabase -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
+
+```
 Abaixo está a configuração junto ao IntelliJ:
 ![image](https://github.com/lschlestein/JDBC/assets/103784532/b2d2e5f0-4cae-47c8-ad02-7d9ccb3f7c4e)
+
+### Iniciando um Projeto Java com JDBC
+
+Iremos criar um novo projeto Java no IntelliJ e configurar o arquivo pom.xml da seguinte forma:
+Basicamente precisamos informar o driver que utilizaremos para trocar informações com a nossa base de dados. Nesse caso inserimos o driver do MySql em nossa aplicação.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>Jdbc</groupId>
+    <artifactId>JavaJdbc</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.28</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
+```
 
 
 
