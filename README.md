@@ -18,7 +18,12 @@ Ex. de Drivers:
 
 [PostgreSQL:](https://jdbc.postgresql.org/)
 
-Configurando o banco de dados:
+### Configurando o banco de dados:
+
+Nesse exemplo utilizaremos o Docker junto a uma Database:
+Abaixo está a configuração junto ao IntelliJ:
+![image](https://github.com/lschlestein/JDBC/assets/103784532/b2d2e5f0-4cae-47c8-ad02-7d9ccb3f7c4e)
+
 
 
 
