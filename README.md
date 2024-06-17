@@ -291,6 +291,6 @@ public static void main(String[] args) {
 Com o maior número de classe é importante organizarmos nossa aplicação em pacotes conforme segue:
 ![image](https://github.com/lschlestein/JDBC/assets/103784532/44aeab28-835b-4871-96d7-028de25f32f3)
 
-O código completo para esse CRUD está diponível nesse mesmo repositório 
+O código completo para esse CRUD está diponível nesse mesmo [repositório](https://github.com/lschlestein/JDBC.git)
 
 
