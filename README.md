@@ -92,9 +92,9 @@ A primeira coisa a fazer é nos conectarmos a nossa base de dados utilizando a i
 
 ```Java
 String url = "jdbc:mysql://localhost:3306/COMPANY";
-String user = "root";
+String person = "root";
 String pass = "root";
-try (Connection con = DriverManager.getConnection(url, user, pass)) {
+try (Connection con = DriverManager.getConnection(url, person, pass)) {
          System.out.println("Connected");
 } catch (SQLException e) {
          System.out.println("Não foi possível conectar: "+e.getMessage());
@@ -173,13 +173,13 @@ public class User {
     }
 }
 ```
-Populando uma lista de user:
+Populando uma lista de person:
 ```java
 tmpUser = new User();
 tmpUser.setUserID(rs.getInt("UserID"));
 tmpUser.setEmail(rs.getString("Email"));
 tmpUser.setName(rs.getString("Name"));
-users.add(tmpUser);
+people.add(tmpUser);
 ```
 
 Nosso código básico para busca de informações em nossa base de dados, ficará da seguinte forma:
@@ -187,12 +187,12 @@ Nosso código básico para busca de informações em nossa base de dados, ficar�
 public class Principal {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/COMPANY";
-        String user = "root";
+        String person = "root";
         String pass = "root";
         User tmpUser = new User();
-        List<User> users = new ArrayList<User>();
+        List<User> people = new ArrayList<User>();
 
-        try (Connection con = DriverManager.getConnection(url, user, pass)) {
+        try (Connection con = DriverManager.getConnection(url, person, pass)) {
             System.out.println("Connected");
             PreparedStatement ps = con.prepareStatement("select * from User");
             ResultSet rs = ps.executeQuery();
@@ -201,12 +201,12 @@ public class Principal {
                 tmpUser.setUserID(rs.getInt("UserID"));
                 tmpUser.setEmail(rs.getString("Email"));
                 tmpUser.setName(rs.getString("Name"));
-                users.add(tmpUser);
+                people.add(tmpUser);
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar: "+e.getMessage());
         }
-        System.out.println(users);
+        System.out.println(people);
     }
 }
 ```
@@ -216,7 +216,7 @@ public class Principal {
 Para inserir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
 public int insertUser(User u) {
-        try(Connection con =DriverManager.getConnection(url, user, pass)) {
+        try(Connection con =DriverManager.getConnection(url, person, pass)) {
             String query = "INSERT INTO User(Name,Email) VALUES (?,?);";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1,u.getName());
@@ -246,12 +246,12 @@ Para exlcuir dados, também precisaremos estar conectados em nossa base de dados
 
 Para alterar dados:
 ```java
-public int updateUser(User user) {
+public int updateUser(User person) {
         String query = "UPDATE User SET Name = ?, Email=? WHERE UserID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setInt(3, user.getUserID());
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getEmail());
+            preparedStatement.setInt(3, person.getUserID());
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -268,9 +268,9 @@ Exemplo que utiliza o Statement ao invés do PreparedStatement:
 ```java
 public static void main(String[] args) {
         User tmpUser = new User();
-        List<User> users = new ArrayList<User>();
+        List<User> people = new ArrayList<User>();
         System.out.println(insertUser(new User(0,"Lucas","lucas@mail.com")));
-        try (Connection con = DriverManager.getConnection(url, user, pass);) {
+        try (Connection con = DriverManager.getConnection(url, person, pass);) {
             System.out.println("Connected");
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("select * from User");
@@ -279,12 +279,12 @@ public static void main(String[] args) {
                 tmpUser.setUserID(rs.getInt("UserID"));
                 tmpUser.setEmail(rs.getString("Email"));
                 tmpUser.setName(rs.getString("Name"));
-                users.add(tmpUser);
+                people.add(tmpUser);
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar: "+e.getMessage());
         }
-        System.out.println(users);
+        System.out.println(people);
     }
 ```
 

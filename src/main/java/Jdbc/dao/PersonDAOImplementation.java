@@ -1,7 +1,7 @@
 package Jdbc.dao;
 
 import Jdbc.database.DbConnection;
-import Jdbc.model.User;
+import Jdbc.model.Person;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,15 +10,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAOImplementation implements UserDAO {
+public class PersonDAOImplementation implements PersonDAO {
 
     @Override
-    public int addUser(User user) {
-        String query = "INSERT INTO User(Name,Email) VALUES (?,?);";
-        int lines;
+    public int addPerson(Person person) {
+        String query = "INSERT INTO Person(Name,Email) VALUES (?,?);";
+        int lines = 0;
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query);) {
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getEmail());
             lines = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -27,12 +27,12 @@ public class UserDAOImplementation implements UserDAO {
     }
 
     @Override
-    public int updateUser(User user) {
-        String query = "UPDATE User SET Name = ?, Email=? WHERE UserID = ?;";
+    public int updatePerson(Person person) {
+        String query = "UPDATE Person SET Name = ?, Email=? WHERE PersonID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setInt(3, user.getUserID());
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getEmail());
+            preparedStatement.setInt(3, person.getUserID());
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -40,8 +40,8 @@ public class UserDAOImplementation implements UserDAO {
     }
 
     @Override
-    public int deleteUser(int id) {
-        String query = "DELETE FROM User WHERE UserID = ?;";
+    public int deletePerson(int id) {
+        String query = "DELETE FROM Person WHERE PersonID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             return preparedStatement.executeUpdate();
@@ -51,16 +51,16 @@ public class UserDAOImplementation implements UserDAO {
     }
 
     @Override
-    public User getUser(int id) {
-        String query = "SELECT * FROM User WHERE UserID = ?;";
+    public Person getPerson(int id) {
+        String query = "SELECT * FROM Person WHERE PersonID = ?;";
         try (Connection connection = DbConnection.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                int userId = resultSet.getInt("UserID");
+                int userId = resultSet.getInt("PersonID");
                 String name = resultSet.getString("Name");
                 String email = resultSet.getString("Email");
-                return new User(userId, name, email);
+                return new Person(userId, name, email);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,17 +69,17 @@ public class UserDAOImplementation implements UserDAO {
         return null;
     }
 
-    public List<User> getAllUsers() {
-        var users = new ArrayList<User>();
-        String query = "SELECT UserId as ID , Name , Email FROM User ORDER BY UserID;";
+    public List<Person> getAllPersons() {
+        var users = new ArrayList<Person>();
+        String query = "SELECT PersonID as ID , Name , Email FROM Person ORDER BY PersonID;";
         try (Connection connection = DbConnection.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 do {
-                    int userId = resultSet.getInt("ID");
+                    int personId = resultSet.getInt("ID");
                     String name = resultSet.getString("Name");
                     String email = resultSet.getString("Email");
-                    users.add(new User(userId, name, email));
+                    users.add(new Person(personId, name, email));
                 } while (resultSet.next());
             }
         } catch (SQLException e) {

@@ -1,18 +1,18 @@
 package Jdbc.model;
 
-public class User {
-    private int userID;
+public class Person {
+    private int personID;
     private String name;
     private String email;
 
-    public User(int userID, String nome, String email) {
-        this.userID = userID;
+    public Person(int personID, String nome, String email) {
+        this.personID = personID;
         this.name = nome;
         this.email = email;
     }
 
     public int getUserID() {
-        return userID;
+        return personID;
     }
 
     public String getName() {
@@ -23,11 +23,11 @@ public class User {
         return email;
     }
 
-    public User() {
+    public Person() {
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setPersonID(int personID) {
+        this.personID = personID;
     }
 
     public void setName(String name) {
@@ -40,8 +40,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userID=" + userID +
+        return "Person{" +
+                "personID=" + personID +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}'+"\n";

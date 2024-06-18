@@ -1,29 +1,29 @@
 package Jdbc.main;
 
-import Jdbc.dao.UserDAOImplementation;
-import Jdbc.model.User;
+import Jdbc.dao.PersonDAOImplementation;
+import Jdbc.model.Person;
 
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        UserDAOImplementation userDAO = new UserDAOImplementation();
-        List<User> users;
+        PersonDAOImplementation personDAO = new PersonDAOImplementation();
+        List<Person> people;
         //Add
-        User user = new User();
-        user.setName("John Travolta");
-        user.setEmail("mail@mail.com");
-        userDAO.addUser(user);
+        Person person = new Person();
+        person.setName("John Travolta");
+        person.setEmail("mail@mail.com");
+        personDAO.addPerson(person);
         //Update
-        user = new User(1,"Updated John Travolta","travolta@mail.com");
-        userDAO.updateUser(user);
+        person = new Person(1,"Updated John Travolta","travolta@mail.com");
+        personDAO.updatePerson(person);
         //Delete
-        System.out.println("Linhas deletadas: "+userDAO.deleteUser(2));
+        System.out.println("Linhas deletadas: "+personDAO.deletePerson(4));
         //Get All Users
-        users = userDAO.getAllUsers();
-        System.out.println(users);
+        people = personDAO.getAllPersons();
+        System.out.println(people);
         //Get 1 user
-        System.out.println(userDAO.getUser(3));
+        System.out.println(personDAO.getPerson(1));
 
     }
 }
