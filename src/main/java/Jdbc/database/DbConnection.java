@@ -15,9 +15,9 @@ public class DbConnection {
             try {
                 // Verifica se a conexão está fechada e tenta reabri-la se necessário
                 if (con == null || con.isClosed()) {
-                    String url = "jdbc:mysql://localhost:3306/COMPANY";
-                    String user = "root";
-                    String pass = "root";
+                    String url = "jdbc:postgresql://localhost:5432/postgres";
+                    String user = "postgres";
+                    String pass = "1234";
                     con = DriverManager.getConnection(url, user, pass);
                 }
             } catch (SQLException e) {
