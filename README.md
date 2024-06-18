@@ -41,6 +41,7 @@ e57c1636e09c   mysql      "docker-entrypoint.s…"   15 hours ago   Up 15 hours 
 
 É importante que o nome de nossa Database rodando seja no Docker, ou configurada em nossa próspria máquina, seja igual, a Database utilizada em nossa aplicação Java.
 Utilizaremos a seguinte tabela nesse exemplo:
+
 MySQL
 ``` sql
 create table Person
