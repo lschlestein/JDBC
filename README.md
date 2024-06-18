@@ -44,9 +44,7 @@ Utilizaremos a seguinte tabela nesse exemplo:
 MySQL
 ``` sql
 create table Person
-(
-    UserID int auto_increment
-        primary key,
+(   PersonID int auto_increment primary key,
     Name   varchar(100) null,
     Email  varchar(100) null
 );
@@ -55,7 +53,7 @@ create table Person
 Postgres
 ``` sql
 create table Person
-(   UserID SERIAL primary key,
+(   PersonID SERIAL primary key,
     Name   varchar(100),
     Email  varchar(100));
 ```
