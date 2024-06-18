@@ -104,7 +104,7 @@ Basicamente precisamos informar o driver que utilizaremos para trocar informaç�
     </properties>
 </project>
 ```
-### Configuração do Pom.xml Postgres
+### Configuração do Pom.xml Para Postgres
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -143,12 +143,24 @@ Esses componentes são interfaces que nos possibilitam acesso a nossa base de da
 ## Conexão
 A primeira coisa a fazer é nos conectarmos a nossa base de dados utilizando a interface Connection:
 
+### Conectando a um banco MySQL
 ```Java
 String url = "jdbc:mysql://localhost:3306/COMPANY";
 String user = "root";
 String pass = "root";
 try (Connection con = DriverManager.getConnection(url, user, pass)) {
          System.out.println("Connected");
+} catch (SQLException e) {
+         System.out.println("Não foi possível conectar: "+e.getMessage());
+}
+```
+### Conectando a um banco Postgres
+```Java
+String url = ""jdbc:postgresql://localhost:5432/postgres";     //Conectada a database padão postgres
+String user = "postgres";                                      //Utiliza o usuário postgres
+String pass = "1234";                                          //Senha configurada junto a database
+try (Connection con = DriverManager.getConnection(url, user, pass)) {
+         System.out.println("Conectado ao Banco de Dados");
 } catch (SQLException e) {
          System.out.println("Não foi possível conectar: "+e.getMessage());
 }
@@ -163,7 +175,7 @@ ResultSet rs = ps.executeQuery();
 Aqui passamos qual a query SQL, que será executada em nossa database, e o resultado obtido ficara disponível na ResultSet.
 ```Java
 while (rs.next()) {
-         System.out.println(rs.getInt("UserID") + " " + rs.getString("Name") + " " + rs.getString("Email"));
+         System.out.println(rs.getInt("PersonID") + " " + rs.getString("Name") + " " + rs.getString("Email"));
 }
 ```
 Os métodos getInt ou getString recuperam os dados do ResultSet, já convertendo o mesmo para o tipo desejado, conforme o método chamado. O parâmetro passado é o nome da coluna contida no ResultSet.
@@ -178,19 +190,19 @@ while (rs.next()) {
 Agora podemos criar uma entidade User em nossa aplicação, com seus respectivos métodos getters e setters, e armazenar os nossos usuários em uma lista de usuários.
 
 ```java
-public class User {
-    private int userID;
+public class Person {
+    private int personID;
     private String name;
     private String email;
 
-    public User(int userID, String nome, String email) {
-        this.userID = userID;
+    public Person(int personID, String nome, String email) {
+        this.personID = personID;
         this.name = nome;
         this.email = email;
     }
 
-    public int getUserID() {
-        return userID;
+    public int GetPersonID() {
+        return personID;
     }
 
     public String getName() {
@@ -204,8 +216,8 @@ public class User {
     public User() {
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setPersonID(int personID) {
+        this.personID = personID;
     }
 
     public void setName(String name) {
@@ -218,8 +230,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userID=" + userID +
+        return "Person{" +
+                "personID=" + personID +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}'+"\n";
@@ -235,7 +247,31 @@ tmpUser.setName(rs.getString("Name"));
 users.add(tmpUser);
 ```
 
-Nosso código básico para busca de informações em nossa base de dados, ficará da seguinte forma:
+
+Nosso código básico para busca de informações em nossa base de dados Postgres, ficará da seguinte forma:
+```java
+public class Main {
+    private static String url = "jdbc:postgresql://localhost:5432/postgres";
+    private static String user = "postgres";
+    private static String password = "1234";
+    
+    public static void main(String[] args) {
+        List<Person> persons = new ArrayList<Person>();
+        try (Connection con = DriverManager.getConnection(url, user, password);          //Conectando ao BD
+             PreparedStatement ps = con.prepareStatement("select * from Person")) {    //Preparando query
+            System.out.println("Conectado com sucesso!");
+            ResultSet rs = ps.executeQuery();                                           //Executando query no BD
+            while (rs.next()) {
+                persons.add(new Person(rs.getInt("personid"), rs.getString("name"), rs.getString("email")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao conectar ao banco: " + e.getMessage());
+        }
+        System.out.println(persons);
+    }
+}
+```
+Nosso código básico para busca de informações em nossa base de dados MySQL, ficará da seguinte forma:
 ```java
 public class Principal {
     public static void main(String[] args) {
@@ -268,12 +304,12 @@ public class Principal {
 
 Para inserir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
-public int insertUser(User u) {
+public int insertPerson(Person p) {
         try(Connection con =DriverManager.getConnection(url, user, pass)) {
-            String query = "INSERT INTO User(Name,Email) VALUES (?,?);";
+            String query = "INSERT INTO Person(Name,Email) VALUES (?,?);";
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1,u.getName());
-            ps.setString(2,u.getEmail());
+            ps.setString(1,p.getName());
+            ps.setString(2,p.getEmail());
             return ps.executeUpdate();
         }catch (SQLException e) {
             throw new RuntimeException("Erro na inserção: "+e.getMessage());
@@ -285,8 +321,8 @@ public int insertUser(User u) {
 
 Para exlcuir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
- public int deleteUser(int id) {
-        String query = "DELETE FROM User WHERE UserID = ?;";
+ public int deletePerson(int id) {
+        String query = "DELETE FROM Person WHERE UserID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             return preparedStatement.executeUpdate();
@@ -299,12 +335,12 @@ Para exlcuir dados, também precisaremos estar conectados em nossa base de dados
 
 Para alterar dados:
 ```java
-public int updateUser(User user) {
-        String query = "UPDATE User SET Name = ?, Email=? WHERE UserID = ?;";
+public int updateUser(Person person) {
+        String query = "UPDATE Person SET Name = ?, Email=? WHERE UserID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
-            preparedStatement.setString(1, user.getName());
-            preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setInt(3, user.getUserID());
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getEmail());
+            preparedStatement.setInt(3, person.getUserID());
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -320,19 +356,19 @@ Exemplo que utiliza o Statement ao invés do PreparedStatement:
 
 ```java
 public static void main(String[] args) {
-        User tmpUser = new User();
-        List<User> users = new ArrayList<User>();
-        System.out.println(insertUser(new User(0,"Lucas","lucas@mail.com")));
+        User tmpPerson = new User();
+        List<Person> persons = new ArrayList<User>();
+        System.out.println(insertPerson(new Person(0,"Lucas","lucas@mail.com")));
         try (Connection con = DriverManager.getConnection(url, user, pass);) {
             System.out.println("Connected");
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("select * from User");
+            ResultSet rs = st.executeQuery("select * from Person");
             while (rs.next()) {
-                tmpUser = new User();
-                tmpUser.setUserID(rs.getInt("UserID"));
-                tmpUser.setEmail(rs.getString("Email"));
-                tmpUser.setName(rs.getString("Name"));
-                users.add(tmpUser);
+                tmpPerson = new Person();
+                tmpPerson.setPersonID(rs.getInt("PersonID"));
+                tmpPerson.setEmail(rs.getString("Email"));
+                tmpPerson.setName(rs.getString("Name"));
+                persons.add(tmpPerson);
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar: "+e.getMessage());
