@@ -22,37 +22,62 @@ Ex. de Drivers:
 
 Nesse exemplo utilizaremos o Docker junto a uma Database:
 Pode ser utilizado outra base de dados, como postgres, só mudará a conexão junto a nossa aplicação.
-Docker:
+Criando uma database MySQL no Docker:
 ```bash
-docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=dockerDatabase -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
-
+docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=COMPANY -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
 ```
+Criando uma database Postgres no Docker:
+```bash
+docker run --name postgresDB -p 5432:5432 -v /tmp/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=1234 -d postgres
+```
+Verifique se o container realmente está rodando, após dar o comando para sua criação
+```bash
+C:\Users\Lucas>docker ps
+CONTAINER ID   IMAGE      COMMAND                  CREATED        STATUS        PORTS                               NAMES
+42935d7e958e   postgres   "docker-entrypoint.s…"   14 hours ago   Up 14 hours   0.0.0.0:5432->5432/tcp              postgresDB
+e57c1636e09c   mysql      "docker-entrypoint.s…"   15 hours ago   Up 15 hours   0.0.0.0:3306->3306/tcp, 33060/tcp   mysqlContainer
+```
+
+
 É importante que o nome de nossa Database rodando seja no Docker, ou configurada em nossa próspria máquina, seja igual, a Database utilizada em nossa aplicação Java.
 Utilizaremos a seguinte tabela nesse exemplo:
+
+MySQL
 ``` sql
-create table User
-(
-    UserID int auto_increment
-        primary key,
+create table Person
+(   PersonID int auto_increment primary key,
     Name   varchar(100) null,
     Email  varchar(100) null
 );
 ```
 
+Postgres
+``` sql
+create table Person
+(   PersonID SERIAL primary key,
+    Name   varchar(100),
+    Email  varchar(100));
+```
+
 Se desejado podemos fazer algumas inserções na mesma;
 
 ```sql
-INSERT INTO User(Name, Email) VALUES ('John Doe', 'doe@mail.com');
+INSERT INTO Person(Name, Email) VALUES ('John Doe', 'doe@mail.com');
 ```
 
 Abaixo está a configuração junto ao IntelliJ:
-![image](https://github.com/lschlestein/JDBC/assets/103784532/b2d2e5f0-4cae-47c8-ad02-7d9ccb3f7c4e)
+### MySQL
+![image](https://github.com/lschlestein/JDBC/assets/103784532/ceb1e22a-74ce-41dd-8d92-9a598572c631)
+
+### Postgres
+![image](https://github.com/lschlestein/JDBC/assets/103784532/cd843d25-3dc7-46b0-90f0-58f62d38328d)
 
 ### Iniciando um Projeto Java com JDBC
 
 Iremos criar um novo projeto Java no IntelliJ e configurar o arquivo pom.xml da seguinte forma:
-Basicamente precisamos informar o driver que utilizaremos para trocar informações com a nossa base de dados. Nesse caso inserimos o driver do MySql em nossa aplicação.
+Basicamente precisamos informar o driver que utilizaremos para trocar informações com a nossa base de dados.
 
+### Configuração do Pom.xml para MySQL
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -78,9 +103,37 @@ Basicamente precisamos informar o driver que utilizaremos para trocar informaç�
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
+```
+### Configuração do Pom.xml Para Postgres
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
+    <groupId>Jdbc</groupId>
+    <artifactId>JavaJdbc</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
 
 ```
+Obs.: O driver configurado deve correposnder ao banco de dados o qual será acessado:
+
 ### Interfaces necessárias para manipular nossa base de dados:
 ![image](https://github.com/lschlestein/JDBC/assets/103784532/67c2de15-0a5d-4fc6-9ce1-a239b2342365)
 
@@ -90,12 +143,24 @@ Esses componentes são interfaces que nos possibilitam acesso a nossa base de da
 ## Conexão
 A primeira coisa a fazer é nos conectarmos a nossa base de dados utilizando a interface Connection:
 
+### Conectando a um banco MySQL
 ```Java
-String url = "jdbc:mysql://localhost:3306/COMPANY";
-String person = "root";
-String pass = "root";
-try (Connection con = DriverManager.getConnection(url, person, pass)) {
-         System.out.println("Connected");
+String url = "jdbc:mysql://localhost:3306/COMPANY"; //Conectando a database padão COMPANY
+String user = "root";                                //Utiliza o usuário root 
+String pass = "root";                                //Utiliza a senha root
+try (Connection con = DriverManager.getConnection(url, user, pass)) {
+         System.out.println("Conectado ao Mysql");
+} catch (SQLException e) {
+         System.out.println("Não foi possível conectar: "+e.getMessage());
+}
+```
+### Conectando a um banco Postgres
+```Java
+String url = "jdbc:postgresql://localhost:5432/postgres";     //Conectando a database padão postgres
+String user = "postgres";                                      //Utiliza o usuário postgres
+String pass = "1234";                                          //Senha configurada junto a database
+try (Connection con = DriverManager.getConnection(url, user, pass)) {
+         System.out.println("Conectado ao Postgres");
 } catch (SQLException e) {
          System.out.println("Não foi possível conectar: "+e.getMessage());
 }
@@ -110,7 +175,7 @@ ResultSet rs = ps.executeQuery();
 Aqui passamos qual a query SQL, que será executada em nossa database, e o resultado obtido ficara disponível na ResultSet.
 ```Java
 while (rs.next()) {
-         System.out.println(rs.getInt("UserID") + " " + rs.getString("Name") + " " + rs.getString("Email"));
+         System.out.println(rs.getInt("PersonID") + " " + rs.getString("Name") + " " + rs.getString("Email"));
 }
 ```
 Os métodos getInt ou getString recuperam os dados do ResultSet, já convertendo o mesmo para o tipo desejado, conforme o método chamado. O parâmetro passado é o nome da coluna contida no ResultSet.
@@ -125,19 +190,19 @@ while (rs.next()) {
 Agora podemos criar uma entidade User em nossa aplicação, com seus respectivos métodos getters e setters, e armazenar os nossos usuários em uma lista de usuários.
 
 ```java
-public class User {
-    private int userID;
+public class Person {
+    private int personID;
     private String name;
     private String email;
 
-    public User(int userID, String nome, String email) {
-        this.userID = userID;
+    public Person(int personID, String nome, String email) {
+        this.personID = personID;
         this.name = nome;
         this.email = email;
     }
 
-    public int getUserID() {
-        return userID;
+    public int GetPersonID() {
+        return personID;
     }
 
     public String getName() {
@@ -151,8 +216,8 @@ public class User {
     public User() {
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setPersonID(int personID) {
+        this.personID = personID;
     }
 
     public void setName(String name) {
@@ -165,34 +230,58 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userID=" + userID +
+        return "Person{" +
+                "personID=" + personID +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}'+"\n";
     }
 }
 ```
-Populando uma lista de person:
+Populando uma lista de user:
 ```java
 tmpUser = new User();
 tmpUser.setUserID(rs.getInt("UserID"));
 tmpUser.setEmail(rs.getString("Email"));
 tmpUser.setName(rs.getString("Name"));
-people.add(tmpUser);
+users.add(tmpUser);
 ```
 
-Nosso código básico para busca de informações em nossa base de dados, ficará da seguinte forma:
+
+Nosso código básico para busca de informações em nossa base de dados Postgres, ficará da seguinte forma:
+```java
+public class Main {
+    private static String url = "jdbc:postgresql://localhost:5432/postgres";
+    private static String user = "postgres";
+    private static String password = "1234";
+    
+    public static void main(String[] args) {
+        List<Person> persons = new ArrayList<Person>();
+        try (Connection con = DriverManager.getConnection(url, user, password);          //Conectando ao BD
+             PreparedStatement ps = con.prepareStatement("select * from Person")) {    //Preparando query
+            System.out.println("Conectado com sucesso!");
+            ResultSet rs = ps.executeQuery();                                           //Executando query no BD
+            while (rs.next()) {
+                persons.add(new Person(rs.getInt("personid"), rs.getString("name"), rs.getString("email")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao conectar ao banco: " + e.getMessage());
+        }
+        System.out.println(persons);
+    }
+}
+```
+Nosso código básico para busca de informações em nossa base de dados MySQL, ficará da seguinte forma:
 ```java
 public class Principal {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/COMPANY";
-        String person = "root";
+        String user = "root";
         String pass = "root";
         User tmpUser = new User();
-        List<User> people = new ArrayList<User>();
+        List<User> users = new ArrayList<User>();
 
-        try (Connection con = DriverManager.getConnection(url, person, pass)) {
+        try (Connection con = DriverManager.getConnection(url, user, pass)) {
             System.out.println("Connected");
             PreparedStatement ps = con.prepareStatement("select * from User");
             ResultSet rs = ps.executeQuery();
@@ -201,12 +290,12 @@ public class Principal {
                 tmpUser.setUserID(rs.getInt("UserID"));
                 tmpUser.setEmail(rs.getString("Email"));
                 tmpUser.setName(rs.getString("Name"));
-                people.add(tmpUser);
+                users.add(tmpUser);
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar: "+e.getMessage());
         }
-        System.out.println(people);
+        System.out.println(users);
     }
 }
 ```
@@ -215,12 +304,12 @@ public class Principal {
 
 Para inserir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
-public int insertUser(User u) {
-        try(Connection con =DriverManager.getConnection(url, person, pass)) {
-            String query = "INSERT INTO User(Name,Email) VALUES (?,?);";
+public int insertPerson(Person p) {
+        try(Connection con =DriverManager.getConnection(url, user, pass)) {
+            String query = "INSERT INTO Person(Name,Email) VALUES (?,?);";
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1,u.getName());
-            ps.setString(2,u.getEmail());
+            ps.setString(1,p.getName());
+            ps.setString(2,p.getEmail());
             return ps.executeUpdate();
         }catch (SQLException e) {
             throw new RuntimeException("Erro na inserção: "+e.getMessage());
@@ -232,8 +321,8 @@ public int insertUser(User u) {
 
 Para exlcuir dados, também precisaremos estar conectados em nossa base de dados:
 ```java
- public int deleteUser(int id) {
-        String query = "DELETE FROM User WHERE UserID = ?;";
+ public int deletePerson(int id) {
+        String query = "DELETE FROM Person WHERE UserID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             return preparedStatement.executeUpdate();
@@ -246,8 +335,8 @@ Para exlcuir dados, também precisaremos estar conectados em nossa base de dados
 
 Para alterar dados:
 ```java
-public int updateUser(User person) {
-        String query = "UPDATE User SET Name = ?, Email=? WHERE UserID = ?;";
+public int updateUser(Person person) {
+        String query = "UPDATE Person SET Name = ?, Email=? WHERE UserID = ?;";
         try (Connection con = DbConnection.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(query)) {
             preparedStatement.setString(1, person.getName());
             preparedStatement.setString(2, person.getEmail());
@@ -267,30 +356,30 @@ Exemplo que utiliza o Statement ao invés do PreparedStatement:
 
 ```java
 public static void main(String[] args) {
-        User tmpUser = new User();
-        List<User> people = new ArrayList<User>();
-        System.out.println(insertUser(new User(0,"Lucas","lucas@mail.com")));
-        try (Connection con = DriverManager.getConnection(url, person, pass);) {
+        User tmpPerson = new User();
+        List<Person> persons = new ArrayList<User>();
+        System.out.println(insertPerson(new Person(0,"Lucas","lucas@mail.com")));
+        try (Connection con = DriverManager.getConnection(url, user, pass);) {
             System.out.println("Connected");
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("select * from User");
+            ResultSet rs = st.executeQuery("select * from Person");
             while (rs.next()) {
-                tmpUser = new User();
-                tmpUser.setUserID(rs.getInt("UserID"));
-                tmpUser.setEmail(rs.getString("Email"));
-                tmpUser.setName(rs.getString("Name"));
-                people.add(tmpUser);
+                tmpPerson = new Person();
+                tmpPerson.setPersonID(rs.getInt("PersonID"));
+                tmpPerson.setEmail(rs.getString("Email"));
+                tmpPerson.setName(rs.getString("Name"));
+                persons.add(tmpPerson);
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar: "+e.getMessage());
         }
-        System.out.println(people);
+        System.out.println(users);
     }
 ```
 
 Com o maior número de classe é importante organizarmos nossa aplicação em pacotes conforme segue:
 ![image](https://github.com/lschlestein/JDBC/assets/103784532/44aeab28-835b-4871-96d7-028de25f32f3)
 
-O código completo para esse CRUD está diponível nesse mesmo repositório 
+O código completo para esse CRUD está diponível nesse mesmo [repositório](https://github.com/lschlestein/JDBC.git)
 
 
