@@ -145,22 +145,22 @@ A primeira coisa a fazer é nos conectarmos a nossa base de dados utilizando a i
 
 ### Conectando a um banco MySQL
 ```Java
-String url = "jdbc:mysql://localhost:3306/COMPANY";
-String user = "root";
-String pass = "root";
+String url = "jdbc:mysql://localhost:3306/COMPANY"; //Conectando a database padão COMPANY
+String user = "root";                                //Utiliza o usuário root 
+String pass = "root";                                //Utiliza a senha root
 try (Connection con = DriverManager.getConnection(url, user, pass)) {
-         System.out.println("Connected");
+         System.out.println("Conectado ao Mysql");
 } catch (SQLException e) {
          System.out.println("Não foi possível conectar: "+e.getMessage());
 }
 ```
 ### Conectando a um banco Postgres
 ```Java
-String url = ""jdbc:postgresql://localhost:5432/postgres";     //Conectada a database padão postgres
+String url = "jdbc:postgresql://localhost:5432/postgres";     //Conectando a database padão postgres
 String user = "postgres";                                      //Utiliza o usuário postgres
 String pass = "1234";                                          //Senha configurada junto a database
 try (Connection con = DriverManager.getConnection(url, user, pass)) {
-         System.out.println("Conectado ao Banco de Dados");
+         System.out.println("Conectado ao Postgres");
 } catch (SQLException e) {
          System.out.println("Não foi possível conectar: "+e.getMessage());
 }
