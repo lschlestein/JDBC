@@ -22,15 +22,28 @@ Ex. de Drivers:
 
 Nesse exemplo utilizaremos o Docker junto a uma Database:
 Pode ser utilizado outra base de dados, como postgres, só mudará a conexão junto a nossa aplicação.
-Docker:
+Criando uma database MySQL no Docker:
 ```bash
-docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=dockerDatabase -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
-
+docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=COMPANY -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
 ```
+Criando uma database Postgres no Docker:
+```bash
+docker run --name postgresDB -p 5432:5432 -v /tmp/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=1234 -d postgres
+```
+Verifique se o container realmente está rodando, após dar o comando para sua criação
+```bash
+C:\Users\Lucas>docker ps
+CONTAINER ID   IMAGE      COMMAND                  CREATED        STATUS        PORTS                               NAMES
+42935d7e958e   postgres   "docker-entrypoint.s…"   14 hours ago   Up 14 hours   0.0.0.0:5432->5432/tcp              postgresDB
+e57c1636e09c   mysql      "docker-entrypoint.s…"   15 hours ago   Up 15 hours   0.0.0.0:3306->3306/tcp, 33060/tcp   mysqlContainer
+```
+
+
 É importante que o nome de nossa Database rodando seja no Docker, ou configurada em nossa próspria máquina, seja igual, a Database utilizada em nossa aplicação Java.
 Utilizaremos a seguinte tabela nesse exemplo:
+MySQL
 ``` sql
-create table User
+create table Person
 (
     UserID int auto_increment
         primary key,
@@ -39,20 +52,33 @@ create table User
 );
 ```
 
+Postgres
+``` sql
+create table Person
+(   UserID SERIAL primary key,
+    Name   varchar(100),
+    Email  varchar(100));
+```
+
 Se desejado podemos fazer algumas inserções na mesma;
 
 ```sql
-INSERT INTO User(Name, Email) VALUES ('John Doe', 'doe@mail.com');
+INSERT INTO Person(Name, Email) VALUES ('John Doe', 'doe@mail.com');
 ```
 
 Abaixo está a configuração junto ao IntelliJ:
-![image](https://github.com/lschlestein/JDBC/assets/103784532/b2d2e5f0-4cae-47c8-ad02-7d9ccb3f7c4e)
+### MySQL
+![image](https://github.com/lschlestein/JDBC/assets/103784532/ceb1e22a-74ce-41dd-8d92-9a598572c631)
+
+### Postgres
+![image](https://github.com/lschlestein/JDBC/assets/103784532/cd843d25-3dc7-46b0-90f0-58f62d38328d)
 
 ### Iniciando um Projeto Java com JDBC
 
 Iremos criar um novo projeto Java no IntelliJ e configurar o arquivo pom.xml da seguinte forma:
-Basicamente precisamos informar o driver que utilizaremos para trocar informações com a nossa base de dados. Nesse caso inserimos o driver do MySql em nossa aplicação.
+Basicamente precisamos informar o driver que utilizaremos para trocar informações com a nossa base de dados.
 
+### Configuração do Pom.xml para MySQL
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -78,9 +104,37 @@ Basicamente precisamos informar o driver que utilizaremos para trocar informaç�
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
+```
+### Configuração do Pom.xml Postgres
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
+    <groupId>Jdbc</groupId>
+    <artifactId>JavaJdbc</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
 
 ```
+Obs.: O driver configurado deve correposnder ao banco de dados o qual será acessado:
+
 ### Interfaces necessárias para manipular nossa base de dados:
 ![image](https://github.com/lschlestein/JDBC/assets/103784532/67c2de15-0a5d-4fc6-9ce1-a239b2342365)
 
