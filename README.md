@@ -387,4 +387,7 @@ Com o maior número de classe é importante organizarmos nossa aplicação em pa
 
 O código completo para esse CRUD está diponível nesse mesmo [repositório](https://github.com/lschlestein/JDBC.git)
 
+Referências:
+[Processing SQL Statements with JDBC](https://docs.oracle.com/javase/tutorial/jdbc/basics/processingsqlstatements.html)
+
 
