@@ -20,7 +20,8 @@ Ex. de Drivers:
 
 ### Configurando o banco de dados:
 
-Nesse exemplo utilizaremos o Docker junto a uma Database:
+Para que nossa aplicação Java possa interagir com um banco de dados, precisamos primeiramente, configurar um setup básico, com um banco de dados e pelo menos uma tabela.
+Nesse exemplo utilizaremos o Docker junto a uma Database MySQL ou Postgres:
 Pode ser utilizado outra base de dados, como postgres, só mudará a conexão junto a nossa aplicação.
 Criando uma database MySQL no Docker:
 ```bash
@@ -38,7 +39,7 @@ CONTAINER ID   IMAGE      COMMAND                  CREATED        STATUS        
 e57c1636e09c   mysql      "docker-entrypoint.s…"   15 hours ago   Up 15 hours   0.0.0.0:3306->3306/tcp, 33060/tcp   mysqlContainer
 ```
 
-
+Não é necessário configurar os dois banco de dados como no exemplo, somente um dos dois será suficiente. No exemplo acima no MySQL a database é COMPANY, e no postgres, foi utilizada a database postgres que é padrão do mesmo.
 É importante que o nome de nossa Database rodando seja no Docker, ou configurada em nossa próspria máquina, seja igual, a Database utilizada em nossa aplicação Java.
 Utilizaremos a seguinte tabela nesse exemplo:
 
