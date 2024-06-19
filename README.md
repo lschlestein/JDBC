@@ -23,6 +23,7 @@ Ex. de Drivers:
 Para que nossa aplicação Java possa interagir com um banco de dados, precisamos primeiramente, configurar um setup básico, com um banco de dados e pelo menos uma tabela.
 Nesse exemplo utilizaremos o Docker junto a uma Database MySQL ou Postgres:
 Pode ser utilizado outra base de dados, como postgres, só mudará a conexão junto a nossa aplicação.
+
 Criando uma database MySQL no Docker:
 ```bash
 docker run -d --name mysqlContainer -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=COMPANY -e MYSQL_USER=admin -e MYSQL_PASSWORD=root mysql
