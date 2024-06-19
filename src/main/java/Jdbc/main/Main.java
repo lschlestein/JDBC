@@ -8,7 +8,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         PersonDAOImplementation personDAO = new PersonDAOImplementation();
-        List<Person> people;
+        List<Person> persons;
         //Add
         Person person = new Person();
         person.setName("John Travolta");
@@ -20,8 +20,8 @@ public class Main {
         //Delete
         System.out.println("Linhas deletadas: "+personDAO.deletePerson(4));
         //Get All Users
-        people = personDAO.getAllPersons();
-        System.out.println(people);
+        persons = personDAO.getAllPersons();
+        System.out.println(persons);
         //Get 1 user
         System.out.println(personDAO.getPerson(1));
 
